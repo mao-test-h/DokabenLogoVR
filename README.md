@@ -1,0 +1,2 @@
+# DokabenLogoVR
+OculusGoで大量のドカベンロゴを表示/アニメーションさせる検証
