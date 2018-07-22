@@ -88,23 +88,16 @@ namespace MainContents.MatrixTest
             /// </summary>
             [ReadOnly] NativeArray<float> SinTable;
 
-            /// <summary>
-            /// math.cos ルックアップテーブル
-            /// </summary>
-            [ReadOnly] NativeArray<float> CosTable;
-
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
             /// <param name="animationTable">アニメーションテーブル</param>
             /// <param name="sinTable">math.sin ルックアップテーブル</param>
-            /// <param name="cosTable">math.cos ルックアップテーブル</param>
-            public RotateJob(NativeArray<int> animationTable, NativeArray<float> sinTable, NativeArray<float> cosTable)
+            public RotateJob(NativeArray<int> animationTable, NativeArray<float> sinTable)
             {
                 this.AnimationTable = animationTable;
                 this.SinTable = sinTable;
-                this.CosTable = cosTable;
 
                 // その他フィールドはダミーを入れておく
                 this.Time = 0f;
@@ -125,7 +118,7 @@ namespace MainContents.MatrixTest
 
                 // 時間の正弦を算出(再生位置を加算することで角度をずらせるように設定)
                 int sinIndex = (int)math.degrees((this.Time * RotateJob.AnimationSpeed) + data.AnimationHeader) % 360;
-                float sinTime = SinTable[sinIndex];
+                float sinTime = this.Sin(sinIndex);
 
                 // _SinTime0~1に正規化→0~15(コマ数分)の範囲にスケールして要素数として扱う
                 float normal = (sinTime + 1f) / 2f;
@@ -137,8 +130,8 @@ namespace MainContents.MatrixTest
                 // 任意の原点周りにX軸回転を行う(原点を-0.5ずらして下端に設定)
                 float y = 0f, z = 0f;
                 float halfY = y - 0.5f;
-                float sin = SinTable[angle];
-                float cos = CosTable[angle];
+                float sin = this.Sin(angle);
+                float cos = this.Cos(angle);
                 axisRotationMatrix.c1.yz = new float2(cos, sin);
                 axisRotationMatrix.c2.yz = new float2(-sin, cos);
                 axisRotationMatrix.c3.yz = new float2(halfY - halfY * cos + z * sin, z - halfY * sin - z * cos);
@@ -148,6 +141,23 @@ namespace MainContents.MatrixTest
 
                 // 計算結果の反映
                 transform.Value = ret;
+            }
+
+            float Sin(int deg)
+            {
+                // 0~90(度)
+                if (deg <= 90) { return this.SinTable[deg]; }
+                // 90~180
+                else if (deg <= 180) { return this.SinTable[180 - deg]; }
+                // 180~270
+                else if (deg <= 270) { return -this.SinTable[deg - 180]; }
+                // 270~360
+                else { return -this.SinTable[360 - deg]; }
+            }
+
+            float Cos(int deg)
+            {
+                return Sin(deg + 90);
             }
         }
 
@@ -171,11 +181,6 @@ namespace MainContents.MatrixTest
         /// </summary>
         NativeArray<float> SinTable;
 
-        /// <summary>
-        /// math.cos ルックアップテーブル
-        /// </summary>
-        NativeArray<float> CosTable;
-
         protected override void OnCreateManager(int capacity)
         {
             base.OnCreateManager(capacity);
@@ -189,22 +194,19 @@ namespace MainContents.MatrixTest
             }
 
             // sin・cosのルックアップテーブルを作成してJobに渡す
-            const int Length = 360;
-            this.SinTable = new NativeArray<float>(Length, Allocator.Persistent);
-            this.CosTable = new NativeArray<float>(Length, Allocator.Persistent);
-            for (int i = 0; i < Length; ++i)
+            const int Length = 90;
+            this.SinTable = new NativeArray<float>(Length + 1, Allocator.Persistent);
+            for (int i = 0; i <= Length; ++i)
             {
                 this.SinTable[i] = math.sin(math.radians(i));
-                this.CosTable[i] = math.cos(math.radians(i));
             }
-            this._rotateJob = new RotateJob(this.AnimationTable, this.SinTable, this.CosTable);
+            this._rotateJob = new RotateJob(this.AnimationTable, this.SinTable);
         }
 
         protected override void OnDestroyManager()
         {
             if (this.AnimationTable.IsCreated) { this.AnimationTable.Dispose(); }
             if (this.SinTable.IsCreated) { this.SinTable.Dispose(); }
-            if (this.CosTable.IsCreated) { this.CosTable.Dispose(); }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
