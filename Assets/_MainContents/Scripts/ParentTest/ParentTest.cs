@@ -86,7 +86,7 @@
             // カメラ情報参照用Entityの生成
             var sharedCameraDataEntity = entityManager.CreateEntity(sharedCameraDataArchetype);
             entityManager.SetComponentData(sharedCameraDataEntity, new SharedCameraData());
-            entityManager.AddSharedComponentData(sharedCameraDataEntity, new CameraRotation { Value = this.GetBillboardRotation(this._cameraTrs.rotation) });
+            entityManager.AddSharedComponentData(sharedCameraDataEntity, new CameraPosition { Value = this._cameraTrs.localPosition });
             this._sharedCameraDataEntity = sharedCameraDataEntity;
 
             this._entityManager = entityManager;
@@ -103,7 +103,7 @@
             // Update内でとんでもない数のEntityを面倒見無くてはならなくなるので、
             // 予めカメラ情報参照用のEntityを一つだけ生成し、そいつのみに更新情報を渡す形にする。
             // →その上で必要なComponentSystem内でカメラ情報参照用のEntityをInjectして参照すること。
-            this._entityManager.SetSharedComponentData(this._sharedCameraDataEntity, new CameraRotation { Value = this.GetBillboardRotation(this._cameraTrs.rotation) });
+            this._entityManager.SetSharedComponentData(this._sharedCameraDataEntity, new CameraPosition { Value = this._cameraTrs.localPosition });
         }
 
         quaternion GetBillboardRotation(Quaternion rot)

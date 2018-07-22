@@ -46,9 +46,9 @@ namespace MainContents.ParentTest
     /// <summary>
     /// カメラの回転情報
     /// </summary>
-    public struct CameraRotation : ISharedComponentData
+    public struct CameraPosition : ISharedComponentData
     {
-        public quaternion Value;
+        public float3 Value;
     }
 
 
@@ -86,19 +86,19 @@ namespace MainContents.ParentTest
         {
             public readonly int Length;
             [ReadOnly] public ComponentDataArray<SharedCameraData> Dummy;   // これはInject用の識別子みたいなもの
-            [ReadOnly] public SharedComponentDataArray<CameraRotation> CameraRotation;
+            [ReadOnly] public SharedComponentDataArray<CameraPosition> CameraPosition;
         }
 
         /// <summary>
         /// 回転処理用Job
         /// </summary>
         [BurstCompile]
-        struct RotationJob : IJobProcessComponentData<Rotation, DokabenRotationData>
+        struct RotationJob : IJobProcessComponentData<Position, Rotation, DokabenRotationData>
         {
             /// <summary>
-            /// カメラの回転情報
+            /// カメラの位置情報
             /// </summary>
-            public quaternion CameraRotation;
+            public float3 CameraPosition;
 
             /// <summary>
             /// Time.deltaTime
@@ -108,7 +108,7 @@ namespace MainContents.ParentTest
             /// <summary>
             /// Job実行
             /// </summary>
-            public void Execute(ref Rotation localRot, ref DokabenRotationData dokabenRotData)
+            public void Execute(ref Position pos, ref Rotation localRot, ref DokabenRotationData dokabenRotData)
             {
                 var ret = localRot.Value;
                 if (dokabenRotData.DeltaTimeCounter >= Constants.Interval)
@@ -126,7 +126,12 @@ namespace MainContents.ParentTest
                 {
                     dokabenRotData.DeltaTimeCounter += this.DeltaTime;
                 }
-                localRot.Value = math.mul(this.CameraRotation, quaternion.rotateX(math.radians(dokabenRotData.CurrentRot)));
+
+                // Billboard Quaternion
+                var target = pos.Value - this.CameraPosition;
+                var billboardQuat = quaternion.lookRotation(target, new float3(0, 1, 0));
+
+                localRot.Value = math.mul(billboardQuat, quaternion.rotateX(math.radians(dokabenRotData.CurrentRot)));
             }
         }
 
@@ -153,7 +158,7 @@ namespace MainContents.ParentTest
 
             // IJobProcessComponentDataに対しISharedComponentDataを直接渡すことは出来ない?みたいなので、
             // 予めInjectしたカメラの回転情報をScheduleを叩く前に渡した上で実行する
-            this._rotationjob.CameraRotation = this._sharedCameraDataGroup.CameraRotation[0].Value;
+            this._rotationjob.CameraPosition = this._sharedCameraDataGroup.CameraPosition[0].Value;
             this._rotationjob.DeltaTime = Time.deltaTime;
             return this._rotationjob.Schedule(this, 7, inputDeps);
         }
