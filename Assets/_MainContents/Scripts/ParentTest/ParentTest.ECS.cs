@@ -1,4 +1,4 @@
-﻿#if !ENABLE_MATRIX_TEST
+﻿#if ENABLE_PARENT_TEST
 namespace MainContents.ParentTest
 {
     using UnityEngine;

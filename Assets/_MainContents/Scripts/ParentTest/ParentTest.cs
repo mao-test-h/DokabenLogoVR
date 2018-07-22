@@ -5,7 +5,7 @@
     using Unity.Transforms;
     using Unity.Mathematics;
 
-#if !ENABLE_MATRIX_TEST
+#if ENABLE_PARENT_TEST
 
     /// <summary>
     /// ドカベンロゴ回転テスト(親子構造版)
