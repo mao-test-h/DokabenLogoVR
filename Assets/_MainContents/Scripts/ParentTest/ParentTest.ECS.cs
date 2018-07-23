@@ -108,9 +108,9 @@ namespace MainContents.ParentTest
             /// <summary>
             /// Job実行
             /// </summary>
-            public void Execute(ref Position pos, ref Rotation localRot, ref DokabenRotationData dokabenRotData)
+            public void Execute(ref Position pos, ref Rotation rot, ref DokabenRotationData dokabenRotData)
             {
-                var ret = localRot.Value;
+                var ret = rot.Value;
                 if (dokabenRotData.DeltaTimeCounter >= Constants.Interval)
                 {
                     dokabenRotData.CurrentRot += dokabenRotData.CurrentAngle;
@@ -131,7 +131,7 @@ namespace MainContents.ParentTest
                 var target = pos.Value - this.CameraPosition;
                 var billboardQuat = quaternion.lookRotation(target, new float3(0, 1, 0));
 
-                localRot.Value = math.mul(billboardQuat, quaternion.rotateX(math.radians(dokabenRotData.CurrentRot)));
+                rot.Value = math.mul(billboardQuat, quaternion.rotateX(math.radians(dokabenRotData.CurrentRot)));
             }
         }
 
