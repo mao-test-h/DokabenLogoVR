@@ -1,34 +1,29 @@
-﻿namespace MainContents.RotateTest
+﻿namespace MainContents.LightMatrixTest
 {
-#if ENABLE_ROTATE_TEST
-    using System;
-    using System.Linq;
+#if ENABLE_LIGHT_MATRIX_TEST
     using UnityEngine;
     using Unity.Entities;
     using Unity.Transforms;
-    using Unity.Mathematics;
-    using Unity.Rendering;
 
-    /// <summary>
-    /// ドカベンロゴ回転テスト(非親子構造版)
-    /// </summary>
-    public sealed class RotateTest : DokabenTestBase
+    using MainContents.MatrixTest;
+
+    public sealed class LightMatrixTest : DokabenTestBase
     {
         /// <summary>
         /// MonoBehaviour.Start
         /// </summary>
         void Start()
         {
+            //UnityEngine.XR.XRSettings.eyeTextureResolutionScale = 0.5f;
+
             var entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
             // ドカベンロゴのArchetype
             var dokabenLogoArchetype = entityManager.CreateArchetype(
-                typeof(DokabenRotationData),
-                typeof(Position),
-                typeof(Rotation),
+                typeof(AnimationData),
                 typeof(TransformMatrix));
 
-            // カメラ情報参照用Entityの生成
+            // カメラ情報参照用EntityのArchetype
             var sharedCameraDataArchetype = entityManager.CreateArchetype(
                 typeof(SharedCameraData));
 
@@ -36,17 +31,15 @@
             var rotateLook = Utility.CreateMeshInstanceRenderer(base._dokabenRenderData, base._childOffset);
             base.CreateEntitiesFromRandomPosition((randomPosition, look) =>
                 {
-                    // 親Entityの生成
                     var entity = entityManager.CreateEntity(dokabenLogoArchetype);
-                    entityManager.SetComponentData(entity, new Position { Value = randomPosition });
-                    entityManager.SetComponentData(entity, new Rotation { Value = quaternion.identity });
-                    entityManager.SetComponentData(entity, new DokabenRotationData
-                    {
-                        CurrentAngle = RotateTestJobSystem.Constants.Angle,
-                        DeltaTimeCounter = 0f,
-                        FrameCounter = 0,
-                        CurrentRot = 0f,
-                    });
+                    entityManager.SetComponentData(
+                        entity,
+                        new AnimationData
+                        {
+                            // 0度~90度の間でランダムに回転させておく
+                            AnimationHeader = Random.Range(0, 90),
+                            Position = randomPosition,
+                        });
                     entityManager.AddSharedComponentData(entity, rotateLook);
                 });
 
@@ -55,7 +48,6 @@
             entityManager.SetComponentData(sharedCameraDataEntity, new SharedCameraData());
             entityManager.AddSharedComponentData(sharedCameraDataEntity, new CameraPosition { Value = base._cameraTransform.localPosition });
             base._sharedCameraDataEntity = sharedCameraDataEntity;
-
             base._entityManager = entityManager;
         }
 
@@ -73,10 +65,9 @@
             base._entityManager.SetSharedComponentData(base._sharedCameraDataEntity, new CameraPosition { Value = base._cameraTransform.localPosition });
         }
     }
-
 #else
 
-    public sealed class RotateTest : DokabenTestBase
+    public sealed class LightMatrixTest : DokabenTestBase
     {
         void Start() { Destroy(this.gameObject); }
     }

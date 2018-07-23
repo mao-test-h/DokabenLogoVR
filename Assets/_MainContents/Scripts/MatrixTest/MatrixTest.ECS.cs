@@ -1,4 +1,4 @@
-﻿#if ENABLE_MATRIX_TEST
+﻿#if ENABLE_MATRIX_TEST || ENABLE_LIGHT_MATRIX_TEST
 namespace MainContents.MatrixTest
 {
     using UnityEngine;
@@ -41,6 +41,7 @@ namespace MainContents.MatrixTest
     }
 
 
+#if ENABLE_MATRIX_TEST
     /// <summary>
     /// ドカベンロゴ回転システム(回転行列演算版)
     /// </summary>
@@ -220,5 +221,6 @@ namespace MainContents.MatrixTest
             return this._rotateJob.Schedule(this, 7, inputDeps);
         }
     }
+#endif
 }
 #endif
