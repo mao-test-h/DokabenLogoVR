@@ -48,12 +48,15 @@
                     var parentEntity = entityManager.CreateEntity(parentArchetype);
                     entityManager.SetComponentData(parentEntity, new Position { Value = randomPosition });
                     entityManager.SetComponentData(parentEntity, new Rotation { Value = quaternion.identity });
+
+                    int currentFrame = UnityEngine.Random.Range(0, RotateTestJobSystem.Constants.Framerate);
+                    float currentRot = RotateTestJobSystem.Constants.Angle * currentFrame;
                     entityManager.SetComponentData(parentEntity, new DokabenRotationData
                     {
                         CurrentAngle = RotateTestJobSystem.Constants.Angle,
                         DeltaTimeCounter = 0f,
-                        FrameCounter = 0,
-                        CurrentRot = 0f,
+                        FrameCounter = currentFrame,
+                        CurrentRot = currentRot,
                     });
 
                     // 子Entityの生成

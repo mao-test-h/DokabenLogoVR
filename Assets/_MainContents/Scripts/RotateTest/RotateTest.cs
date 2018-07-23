@@ -40,12 +40,15 @@
                     var entity = entityManager.CreateEntity(dokabenLogoArchetype);
                     entityManager.SetComponentData(entity, new Position { Value = randomPosition });
                     entityManager.SetComponentData(entity, new Rotation { Value = quaternion.identity });
+
+                    int currentFrame = UnityEngine.Random.Range(0, RotateTestJobSystem.Constants.Framerate);
+                    float currentRot = RotateTestJobSystem.Constants.Angle * currentFrame;
                     entityManager.SetComponentData(entity, new DokabenRotationData
                     {
                         CurrentAngle = RotateTestJobSystem.Constants.Angle,
                         DeltaTimeCounter = 0f,
-                        FrameCounter = 0,
-                        CurrentRot = 0f,
+                        FrameCounter = currentFrame,
+                        CurrentRot = currentRot,
                     });
                     entityManager.AddSharedComponentData(entity, rotateLook);
                 });
