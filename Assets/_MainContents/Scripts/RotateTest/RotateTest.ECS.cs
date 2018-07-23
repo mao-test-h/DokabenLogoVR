@@ -1,4 +1,4 @@
-﻿#if ENABLE_ROTATE_TEST
+﻿#if ENABLE_PARENT_TEST || ENABLE_PARENT_TEST
 namespace MainContents.RotateTest
 {
     using UnityEngine;

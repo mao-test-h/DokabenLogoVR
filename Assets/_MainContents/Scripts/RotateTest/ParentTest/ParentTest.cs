@@ -1,11 +1,13 @@
 ﻿namespace MainContents.ParentTest
 {
+#if ENABLE_PARENT_TEST
     using UnityEngine;
     using Unity.Entities;
     using Unity.Transforms;
     using Unity.Mathematics;
 
-#if ENABLE_PARENT_TEST
+    using MainContents.RotateTest;
+
 
     /// <summary>
     /// ドカベンロゴ回転テスト(親子構造版)
@@ -69,7 +71,7 @@
                     entityManager.SetComponentData(parentEntity, new Rotation { Value = quaternion.identity });
                     entityManager.SetComponentData(parentEntity, new DokabenRotationData
                     {
-                        CurrentAngle = ParentTestJobSystem.Constants.Angle,
+                        CurrentAngle = RotateTestJobSystem.Constants.Angle,
                         DeltaTimeCounter = 0f,
                         FrameCounter = 0,
                         CurrentRot = 0f,

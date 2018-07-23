@@ -1,10 +1,9 @@
 ﻿namespace MainContents.MatrixTest
 {
+#if ENABLE_MATRIX_TEST
     using UnityEngine;
     using Unity.Entities;
     using Unity.Transforms;
-
-#if ENABLE_MATRIX_TEST
 
     /// <summary>
     /// ドカベンロゴ回転テスト(回転行列演算版)
