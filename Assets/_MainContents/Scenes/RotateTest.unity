@@ -301,8 +301,8 @@ MonoBehaviour:
     Material: {fileID: 2100000, guid: 86e257c7f00d73d47b248c90ee41b99a, type: 2}
   _boundSize: {x: 256, y: 256, z: 256}
   _maxObjectNum: 10000
+  _cameraTransform: {fileID: 534669905}
   _childOffset: {x: 0, y: 0.65, z: 0}
-  _cameraTrs: {fileID: 534669905}
 --- !u!20 &534669904
 Camera:
   m_ObjectHideFlags: 0

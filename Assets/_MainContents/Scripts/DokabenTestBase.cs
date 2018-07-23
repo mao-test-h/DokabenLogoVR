@@ -27,6 +27,27 @@
         [SerializeField] int _maxObjectNum = 100000;
 
         /// <summary>
+        /// CameraのTransformの参照
+        /// </summary>
+        [SerializeField] protected Transform _cameraTransform;
+
+        /// <summary>
+        /// 子オブジェクトのオフセット
+        /// </summary>
+        [SerializeField] protected Vector3 _childOffset = new Vector3(0f, 0.65f, 0f);
+
+        /// <summary>
+        /// EntityManager
+        /// </summary>
+        protected EntityManager _entityManager;
+
+        /// <summary>
+        /// カメラ情報参照用Entity
+        /// </summary>
+        protected Entity _sharedCameraDataEntity;
+
+
+        /// <summary>
         /// Entityをランダムな位置に生成
         /// </summary>
         /// <param name="onCreateEntity">Entity生成毎に呼ばれるコールバック</param>
