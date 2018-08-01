@@ -55,21 +55,14 @@ namespace MainContents.LightMatrixTest
             /// </summary>
             [ReadOnly] NativeArray<int> AnimationTable;
 
-            /// <summary>
-            /// math.sin ルックアップテーブル
-            /// </summary>
-            [ReadOnly] NativeArray<float> SinTable;
-
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
             /// <param name="animationTable">アニメーションテーブル</param>
-            /// <param name="sinTable">math.sin ルックアップテーブル</param>
-            public RotateJob(NativeArray<int> animationTable, NativeArray<float> sinTable)
+            public RotateJob(NativeArray<int> animationTable)
             {
                 this.AnimationTable = animationTable;
-                this.SinTable = sinTable;
 
                 // その他フィールドはダミーを入れておく
                 this.Time = 0f;
@@ -115,18 +108,30 @@ namespace MainContents.LightMatrixTest
             float Sin(int deg)
             {
                 // 0~90(度)
-                if (deg <= 90) { return this.SinTable[deg]; }
+                if (deg <= 90) { return Cos(deg - 90); }
                 // 90~180
-                else if (deg <= 180) { return this.SinTable[180 - deg]; }
+                else if (deg <= 180) { return Cos((180 - deg) - 90); }
                 // 180~270
-                else if (deg <= 270) { return -this.SinTable[deg - 180]; }
+                else if (deg <= 270) { return -Cos((deg - 180) - 90); }
                 // 270~360
-                else { return -this.SinTable[360 - deg]; }
+                else { return -Cos((360 - deg) - 90); }
             }
 
             float Cos(int deg)
             {
-                return Sin(deg + 90);
+                float rad = deg * ((3.14f * 2) / 360f);
+                // math.powで冪乗を算出すると激重になる
+                // →代わりに全部乗算だけで完結させると速い
+                float pow1 = rad * rad;
+                float pow2 = pow1 * pow1;
+                float pow3 = pow2 * pow1;
+                float pow4 = pow2 * pow2;
+                // 階乗は算出コストを省くために数値リテラルで持つ
+                float ret = 1 - (pow1 / 2f)
+                            + (pow2 / 24f)        // 4!
+                            - (pow3 / 720f)       // 6!
+                            + (pow4 / 40320f);    // 8!
+                return ret;
             }
         }
 
@@ -145,11 +150,6 @@ namespace MainContents.LightMatrixTest
         /// </summary>
         NativeArray<int> AnimationTable;
 
-        /// <summary>
-        /// math.sin ルックアップテーブル
-        /// </summary>
-        NativeArray<float> SinTable;
-
         protected override void OnCreateManager(int capacity)
         {
             base.OnCreateManager(capacity);
@@ -161,21 +161,12 @@ namespace MainContents.LightMatrixTest
             {
                 AnimationTable[i] = (90 - (90 / (AnimationTableLength - 1) * i));
             }
-
-            // sin・cosのルックアップテーブルを作成してJobに渡す
-            const int Length = 90;
-            this.SinTable = new NativeArray<float>(Length + 1, Allocator.Persistent);
-            for (int i = 0; i <= Length; ++i)
-            {
-                this.SinTable[i] = math.sin(math.radians(i));
-            }
-            this._rotateJob = new RotateJob(this.AnimationTable, this.SinTable);
+            this._rotateJob = new RotateJob(this.AnimationTable);
         }
 
         protected override void OnDestroyManager()
         {
             if (this.AnimationTable.IsCreated) { this.AnimationTable.Dispose(); }
-            if (this.SinTable.IsCreated) { this.SinTable.Dispose(); }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)

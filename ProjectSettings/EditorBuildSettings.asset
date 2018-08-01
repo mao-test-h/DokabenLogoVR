@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/_MainContents/Scenes/ParentTest.unity
     guid: edf7a7e9b7801e14a82bd32787ea40c8
-  - enabled: 1
+  - enabled: 0
     path: Assets/_MainContents/Scenes/RotateTest.unity
     guid: a0dfed0c11d1c4616bc73ef1e594c5bb
   - enabled: 1

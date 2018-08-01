@@ -642,7 +642,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   webGLLinkerTarget: 1
   scriptingDefineSymbols:
-    7: ENABLE_MATRIX_TEST
+    7: ENABLE_LIGHT_MATRIX_TEST
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
